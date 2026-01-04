@@ -49,11 +49,11 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
 fn pinger() -> bool {
     // TODO: catch failures on name resolution
 
-    let address = "_gateway:0".to_socket_addrs().unwrap().next().unwrap().ip();
+    let address = "1.1.1.1:0".to_socket_addrs().unwrap().next().unwrap().ip();
     let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     let timeout = Duration::from_millis(100); // 0.1 seconds
     let options = ping_rs::PingOptions {
-        ttl: 2,
+        ttl: 128,
         dont_fragment: false,
     };
 
