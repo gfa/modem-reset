@@ -57,9 +57,6 @@ fn pinger() -> bool {
         dont_fragment: false,
     };
 
-    let current_datetime = chrono::offset::Local::now();
-    println!("{} {}", address, current_datetime);
-
     let result = ping_rs::send_ping(&address, timeout, &data, Some(&options));
 
     match result {
