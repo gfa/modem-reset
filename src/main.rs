@@ -20,6 +20,7 @@ fn main() {
                     Ok(_) => println!("Success! Plug is on."),
                     Err(e) => eprintln!("Error controlling plug: {}", e),
                 }
+                thread::sleep(Duration::from_secs(300));
             }
         }
         thread::sleep(Duration::from_secs(2));
