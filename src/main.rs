@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::time::Duration;
 use std::{net::ToSocketAddrs, thread};
-use tapo::requests::{EnergyDataInterval, PowerDataInterval};
 use tapo::ApiClient;
 use tokio::runtime::Runtime;
 
@@ -20,10 +19,10 @@ fn main() {
                     Ok(_) => println!("Success! Plug is on."),
                     Err(e) => eprintln!("Error controlling plug: {}", e),
                 }
-                thread::sleep(Duration::from_secs(300));
+                thread::sleep(Duration::from_secs(600));
             }
         }
-        thread::sleep(Duration::from_secs(2));
+        thread::sleep(Duration::from_secs(20));
     }
 }
 
@@ -52,7 +51,7 @@ fn pinger() -> bool {
         dont_fragment: false,
     };
 
-    // println!("{}", address);
+    println!("{}", address);
 
     let result = ping_rs::send_ping(&address, timeout, &data, Some(&options));
 
