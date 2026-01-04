@@ -10,14 +10,19 @@ fn main() {
     loop {
         {
             if !pinger() {
+                let current_datetime = chrono::offset::Local::now();
+
                 match rt.block_on(change_state(false)) {
-                    Ok(_) => println!("Success! Plug is off."),
-                    Err(e) => eprintln!("Error controlling plug: {}", e),
+                    Ok(_) => println!("Success! Plug is off at {}.", current_datetime),
+                    Err(e) => eprintln!("Error controlling plug: {} at {}", e, current_datetime),
                 }
-                thread::sleep(Duration::from_secs(2));
+                thread::sleep(Duration::from_secs(20));
+
+                let current_datetime = chrono::offset::Local::now();
+
                 match rt.block_on(change_state(true)) {
-                    Ok(_) => println!("Success! Plug is on."),
-                    Err(e) => eprintln!("Error controlling plug: {}", e),
+                    Ok(_) => println!("Success! Plug is on at {}", current_datetime),
+                    Err(e) => eprintln!("Error controlling plug: {} at {}", e, current_datetime),
                 }
                 thread::sleep(Duration::from_secs(600));
             }
@@ -29,7 +34,8 @@ fn main() {
 async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
     let device = ApiClient::new("foo", "bar").p115("192.168.94.70").await?;
 
-    println!("turning the device: {}", state);
+    let current_datetime = chrono::offset::Local::now();
+    println!("turning the device: {} at {}", state, current_datetime);
 
     if state {
         device.on().await?;
@@ -51,7 +57,8 @@ fn pinger() -> bool {
         dont_fragment: false,
     };
 
-    println!("{}", address);
+    let current_datetime = chrono::offset::Local::now();
+    println!("{} {}", address, current_datetime);
 
     let result = ping_rs::send_ping(&address, timeout, &data, Some(&options));
 
