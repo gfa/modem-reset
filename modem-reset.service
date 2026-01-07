@@ -1,0 +1,13 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStartPre=/usr/sbin/setcap cap_net_raw=eip /usr/local/bin/modem-reset
+ExecStart=/usr/local/bin/modem-reset
+Restart=always
+StandardOutput=append:/var/log/modem-reset-out.log
+StandardError=append:/var/log/modem-reset-err.log
+
+[Install]
+WantedBy=multi-user.target
