@@ -1,8 +1,12 @@
 use std::error::Error;
-use std::time::Duration;
 use std::{net::ToSocketAddrs, thread};
 use tapo::ApiClient;
 use tokio::runtime::Runtime;
+
+use std::net::SocketAddr;
+use std::time::Duration;
+
+use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
 
 fn main() {
     let rt = Runtime::new().unwrap();
@@ -11,7 +15,7 @@ fn main() {
 
     loop {
         {
-            if !pinger() {
+            if !rt.block_on(pingfunc()) {
                 let current_datetime = chrono::offset::Local::now();
 
                 match rt.block_on(change_state(false)) {
@@ -48,21 +52,31 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn pinger() -> bool {
+async fn pingfunc() -> bool {
     // TODO: catch failures on name resolution
 
-    let address = "1.1.1.1:0".to_socket_addrs().unwrap().next().unwrap().ip();
-    let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    let timeout = Duration::from_millis(100); // 0.1 seconds
-    let options = ping_rs::PingOptions {
-        ttl: 128,
-        dont_fragment: false,
-    };
+    let host = "_gateway:0".to_socket_addrs().unwrap().next().unwrap();
 
-    let result = ping_rs::send_ping(&address, timeout, &data, Some(&options));
+    println!("pinging {}", host);
 
-    match result {
-        Ok(_reply) => true,
-        Err(_e) => false,
+    let mut config_builder = Config::builder();
+
+    if host.is_ipv6() {
+        config_builder = config_builder.kind(ICMP::V6);
     }
+    let config = config_builder.build();
+
+    let payload = vec![0; 1000]; // fixed size of 1000 bits
+    let client = Client::new(&config).unwrap();
+
+    let mut pinger = client.pinger(host.ip(), PingIdentifier(111));
+
+    if let SocketAddr::V6(addr) = host {
+        pinger.scope_id(addr.scope_id());
+    }
+    pinger.timeout(Duration::from_secs(1));
+
+    let result = pinger.ping(PingSequence(0), &payload).await;
+
+    result.is_ok()
 }
