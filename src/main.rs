@@ -6,6 +6,8 @@ use tokio::runtime::Runtime;
 
 fn main() {
     let rt = Runtime::new().unwrap();
+    let current_datetime = chrono::offset::Local::now();
+    println!("starting {}", current_datetime);
 
     loop {
         {
@@ -13,7 +15,7 @@ fn main() {
                 let current_datetime = chrono::offset::Local::now();
 
                 match rt.block_on(change_state(false)) {
-                    Ok(_) => println!("Success! Plug is off at {}.", current_datetime),
+                    Ok(_) => println!("{} off", current_datetime),
                     Err(e) => eprintln!("Error controlling plug: {} at {}", e, current_datetime),
                 }
                 thread::sleep(Duration::from_secs(20));
@@ -21,7 +23,7 @@ fn main() {
                 let current_datetime = chrono::offset::Local::now();
 
                 match rt.block_on(change_state(true)) {
-                    Ok(_) => println!("Success! Plug is on at {}", current_datetime),
+                    Ok(_) => println!("{} on", current_datetime),
                     Err(e) => eprintln!("Error controlling plug: {} at {}", e, current_datetime),
                 }
                 thread::sleep(Duration::from_secs(600));
