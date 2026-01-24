@@ -53,11 +53,17 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
 }
 
 async fn pingfunc() -> bool {
-    // TODO: catch failures on name resolution
 
-    let host = "_gateway:0".to_socket_addrs().unwrap().next().unwrap();
+    let hosts = "_gateway:0".to_socket_addrs();
 
-    println!("pinging {}", host);
+    let host = match &hosts {
+        Ok(_ip) => hosts.unwrap().next().unwrap(),
+        // _gateway is magic, it can be only resolved when present
+        Err(_e) => return false,
+    };
+
+    let current_datetime = chrono::offset::Local::now();
+    println!("pinging {} {}", host, current_datetime);
 
     let mut config_builder = Config::builder();
 
