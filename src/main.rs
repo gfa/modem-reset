@@ -54,7 +54,7 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
 
 async fn pingfunc() -> bool {
 
-    let hosts = "_gateway:0".to_socket_addrs();
+    let hosts = "84.116.46.21:0".to_socket_addrs();
 
     let host = match &hosts {
         Ok(_ip) => hosts.unwrap().next().unwrap(),
