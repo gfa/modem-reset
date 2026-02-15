@@ -87,6 +87,7 @@ async fn pingfunc() -> bool {
         if result.is_err() {
             failed_pings += 1;
         }
+        thread::sleep(Duration::from_secs(2));
     }
 
     failed_pings < 3
