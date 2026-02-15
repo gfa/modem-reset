@@ -75,7 +75,7 @@ async fn pingfunc() -> bool {
     let payload = vec![0; 1000]; // fixed size of 1000 bits
     let client = Client::new(&config).unwrap();
 
-    let mut pinger = client.pinger(host.ip(), PingIdentifier(111));
+    let mut pinger = client.pinger(host.ip(), PingIdentifier(111)).await;
 
     if let SocketAddr::V6(addr) = host {
         pinger.scope_id(addr.scope_id());
