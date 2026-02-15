@@ -55,39 +55,12 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
 async fn pingfunc() -> bool {
     let hosts = "_gateway:0".to_socket_addrs();
 
-    let host = match &hosts {
+    let _host = match &hosts {
         Ok(_ip) => hosts.unwrap().next().unwrap(),
         // _gateway is magic, it can be only resolved when present
         Err(_e) => return false,
     };
 
-    let current_datetime = chrono::offset::Local::now();
-    println!("pinging {} {}", host, current_datetime);
+    return true;
 
-    let mut config_builder = Config::builder();
-
-    if host.is_ipv6() {
-        config_builder = config_builder.kind(ICMP::V6);
-    }
-    let config = config_builder.build();
-
-    let payload = vec![0; 1000]; // fixed size of 1000 bits
-    let client = Client::new(&config).unwrap();
-
-    let mut pinger = client.pinger(host.ip(), PingIdentifier(111)).await;
-
-    if let SocketAddr::V6(addr) = host {
-        pinger.scope_id(addr.scope_id());
-    }
-    pinger.timeout(Duration::from_secs(1));
-
-    let mut failed_pings = 0;
-    for i in 0..5 {
-        let result = pinger.ping(PingSequence(i as u16), &payload).await;
-        if result.is_err() {
-            failed_pings += 1;
-        }
-    }
-
-    failed_pings < 3
 }
