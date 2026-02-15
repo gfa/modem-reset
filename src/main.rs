@@ -53,7 +53,6 @@ async fn change_state(state: bool) -> Result<(), Box<dyn Error>> {
 }
 
 async fn pingfunc() -> bool {
-
     let hosts = "84.116.46.21:0".to_socket_addrs();
 
     let host = match &hosts {
@@ -82,7 +81,13 @@ async fn pingfunc() -> bool {
     }
     pinger.timeout(Duration::from_secs(1));
 
-    let result = pinger.ping(PingSequence(0), &payload).await;
+    let mut failed_pings = 0;
+    for i in 0..5 {
+        let result = pinger.ping(PingSequence(i as u16), &payload).await;
+        if result.is_err() {
+            failed_pings += 1;
+        }
+    }
 
-    result.is_ok()
+    failed_pings < 3
 }
