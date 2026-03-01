@@ -61,9 +61,6 @@ async fn pingfunc() -> bool {
         Err(_e) => return false,
     };
 
-    let current_datetime = chrono::offset::Local::now();
-    println!("pinging {} {}", host, current_datetime);
-
     let mut config_builder = Config::builder();
 
     if host.is_ipv6() {
@@ -90,5 +87,12 @@ async fn pingfunc() -> bool {
         thread::sleep(Duration::from_secs(2));
     }
 
-    failed_pings < 3
+    if failed_pings > 2 {
+        println!("failed_pings: {}", failed_pings);
+        println!("host: {}", host);
+
+        return false;
+    }
+
+    return true;
 }
